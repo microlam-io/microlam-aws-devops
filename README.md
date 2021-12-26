@@ -1,3 +1,3 @@
-# microlam-params-aws
+# microlam-aws-devops
 
-Implementation of microlam-params for AWS using System Manager parameters.
+Utilities for uploading to aws s3 and updating lambda code
