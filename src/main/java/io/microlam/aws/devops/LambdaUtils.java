@@ -1,5 +1,7 @@
 package io.microlam.aws.devops;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.microlam.aws.auth.AwsProfileRegionClientConfigurator;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
 import software.amazon.awssdk.services.lambda.model.ListFunctionsRequest;
@@ -20,6 +27,9 @@ public class LambdaUtils {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(LambdaUtils.class);
 
+	public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
+	public static final String LOCAL_URL = "http://localhost:9000/2015-03-31/functions/function/invocations";
+	
 	public static LambdaClient createLambdaClient() {
 		return AwsProfileRegionClientConfigurator.getInstance().configure(LambdaClient.builder()).build();
 	}
@@ -59,4 +69,16 @@ public class LambdaUtils {
 		
 	}
 
+	public static String localRunPost(File file) throws IOException {
+		OkHttpClient client = new OkHttpClient();
+		//String json = Files.lines(file.toPath()).collect(Collectors.joining("\n"));
+	  RequestBody body = RequestBody.create(file, JSON);
+	  Request request = new Request.Builder()
+	      .url(LOCAL_URL)
+	      .post(body)
+	      .build();
+	  try (Response response = client.newCall(request).execute()) {
+	    return response.body().string();
+	  }
+	}
 }

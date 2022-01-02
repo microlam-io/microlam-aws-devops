@@ -6,7 +6,7 @@
 
     <groupId>io.microlam</groupId>
 	<artifactId>microlam-aws-devops</artifactId>
-    <version>0.2</version>
+    <version>0.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
   	<name>Microlam AWS Utilities</name>
   	<description>Microlam AWS Utilites</description>
@@ -36,7 +36,7 @@
 
 	<scm>
 	  <connection>scm:git:git://github.com/microlam-io/${project.artifactId}.git</connection>
-	  <developerConnection>scm:git:ssh://github.com:microlam-io/${project.artifactId}.git</developerConnection>
+	  <developerConnection>scm:git:ssh://git@github.com/microlam-io/${project.artifactId}.git</developerConnection>
 	  <url>https://github.com/microlam-io/${project.artifactId}/tree/master</url>
 	</scm>
 
@@ -144,6 +144,12 @@
       </dependencies>
     	</plugin>
     	
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>3.0.0-M4</version>
+      </plugin>
+
 	</plugins>
 	
 </build>
@@ -154,7 +160,7 @@
 	<dependency>
       <groupId>io.microlam</groupId>
       <artifactId>microlam-bom</artifactId>
-      <version>0.2</version>
+      <version>0.3-SNAPSHOT</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -186,6 +192,12 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
     
+ 	<dependency>
+	  <groupId>com.squareup.okhttp3</groupId>
+	  <artifactId>okhttp</artifactId>
+	  <version>4.9.1</version>
+	</dependency>
+
   </dependencies>
 
 
