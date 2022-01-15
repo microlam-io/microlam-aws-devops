@@ -30,12 +30,21 @@ public class LambdaUtils {
 	public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 	public static final String LOCAL_URL = "http://localhost:9000/2015-03-31/functions/function/invocations";
 	
+	protected static LambdaClient lambdaClient = null;
+
+	public static LambdaClient getLambdaClient() {
+		if (lambdaClient == null) {
+			lambdaClient = createLambdaClient();
+		}
+		return lambdaClient;
+	}
+
 	public static LambdaClient createLambdaClient() {
 		return AwsProfileRegionClientConfigurator.getInstance().configure(LambdaClient.builder()).build();
 	}
 	
 	public static void updateLambdaCode(String[] allLambdas, String bucket, String s3Key) {
-		LambdaClient lambdaClient = LambdaUtils.createLambdaClient();
+		LambdaClient lambdaClient = getLambdaClient();
 		List<String> discoveredAllLambda = new ArrayList<>();
 		String nextMarker = null;
 		ListFunctionsResponse listFunctionsResponse;		

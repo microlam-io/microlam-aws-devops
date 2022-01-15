@@ -28,7 +28,15 @@ public class S3Utils {
 	
 	private static Logger LOGGER = LoggerFactory.getLogger(S3Utils.class);
 	
+	protected static S3Client s3Client = null;
 	
+	public static S3Client getS3Client() {
+		if (s3Client == null) {
+			s3Client = createS3Client();
+		}
+		return s3Client;
+	}
+
 	public static S3Client createS3Client() {
 		return AwsProfileRegionClientConfigurator.getInstance().configure(S3Client.builder()).build();
 	}
@@ -36,9 +44,8 @@ public class S3Utils {
 	public static String uploadFileToS3(File file, String bucket) {
 		LOGGER.info("Deploying file {} to S3 bucket '{}'...",  file.getName(), bucket);
 		Path path = file.toPath();
-		S3Client clientS3 = createS3Client();
 		
-		PutObjectResponse por = clientS3.putObject((PutObjectRequest) PutObjectRequest.builder().bucket(bucket).key(file.getName()).build(), path);
+		PutObjectResponse por = getS3Client().putObject((PutObjectRequest) PutObjectRequest.builder().bucket(bucket).key(file.getName()).build(), path);
 		if (por.sdkHttpResponse().isSuccessful()) {
 			LOGGER.info("ok! File uploaded to {}", "s3://"+ bucket + "/" + file.getName());
 			return file.getName();
@@ -46,12 +53,9 @@ public class S3Utils {
 		throw new RuntimeException("Cannot upload file "+ file.getName() + " to S3 bucket '"+ bucket + "'");
 	}
 
-
-	
 	public static String uploadFileToS3(File file, String bucket, int maxThreads) {
 		LOGGER.info("Deploying file {} to S3 bucket '{}'...",  file.getName(), bucket);
-		S3Client clientS3 = createS3Client();
-		CreateMultipartUploadResponse response = clientS3.createMultipartUpload(CreateMultipartUploadRequest.builder()
+		CreateMultipartUploadResponse response = getS3Client().createMultipartUpload(CreateMultipartUploadRequest.builder()
 				.bucket(bucket)
 				.key(file.getName())
 				.build()
@@ -84,7 +88,7 @@ public class S3Utils {
 						long contentLength = Math.min(size-offset, fiveMega);
 						fis.getChannel().position(offset);
 						LOGGER.info("Starting upload part {} from offset = {} with contentLength = {}", partNumber, offset, contentLength);
-						UploadPartResponse uprs = clientS3.uploadPart(UploadPartRequest.builder()
+						UploadPartResponse uprs = getS3Client().uploadPart(UploadPartRequest.builder()
 								.bucket(bucket)
 								.key(file.getName())
 								.uploadId(uploadId)
@@ -116,7 +120,7 @@ public class S3Utils {
 						.uploadId(uploadId)
 						.multipartUpload(CompletedMultipartUpload.builder().parts(resultParts).build());
 						
-				clientS3.completeMultipartUpload(builder.build());
+				s3Client.completeMultipartUpload(builder.build());
 				LOGGER.info("ok! File uploaded to {}", "s3://"+ bucket + "/" + file.getName());
 				return file.getName();
 			}
