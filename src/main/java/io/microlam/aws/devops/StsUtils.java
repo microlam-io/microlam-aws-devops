@@ -12,7 +12,7 @@ public class StsUtils {
 	
 	protected static StsClient stsClient = null;
 	
-	public static StsClient getS3Client() {
+	public static StsClient getStsClient() {
 		if (stsClient == null) {
 			stsClient = createStsClient();
 		}
@@ -24,6 +24,6 @@ public class StsUtils {
 	}
 
 	public static String getAccountId() {
-		return getS3Client().getCallerIdentity().account();
+		return getStsClient().getCallerIdentity().account();
 	}
 }
