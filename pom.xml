@@ -62,8 +62,6 @@
     <slf4j.version>2.0.0-alpha5</slf4j.version>
     <junit.version>4.12</junit.version>
     <gpg.keyname>8011431D42D5A9ACBEF8B2A6D153D68FA8DF084C</gpg.keyname>
-	<cdk.version>2.8.0</cdk.version>
-    <constructs.version>[10.0.0,11.0.0)</constructs.version>
   </properties>
 
 <build>
@@ -162,7 +160,7 @@
 	<dependency>
       <groupId>io.microlam</groupId>
       <artifactId>microlam-bom</artifactId>
-      <version>0.3</version>
+      <version>0.4.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -203,20 +201,18 @@
  	<dependency>
 	  <groupId>com.squareup.okhttp3</groupId>
 	  <artifactId>okhttp</artifactId>
-	  <version>4.9.1</version>
+	  <version>4.10.0</version>
 	</dependency>
 
     <dependency>
         <groupId>software.amazon.awscdk</groupId>
         <artifactId>aws-cdk-lib</artifactId>
-        <version>${cdk.version}</version>
 		<scope>provided</scope>
     </dependency>
 
     <dependency>
         <groupId>software.constructs</groupId>
         <artifactId>constructs</artifactId>
-        <version>${constructs.version}</version>
 		<scope>provided</scope>
     </dependency>
 
