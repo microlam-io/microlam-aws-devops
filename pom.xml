@@ -5,7 +5,7 @@
 
     <groupId>io.microlam</groupId>
 	<artifactId>microlam-aws-devops</artifactId>
-    <version>0.7-SNAPSHOT</version>
+    <version>0.7</version>
 	<packaging>jar</packaging>
   	<name>Microlam AWS Devops Utilities</name>
   	<description>Microlam AWS Devops Utilites</description>
