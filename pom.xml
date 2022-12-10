@@ -37,8 +37,7 @@
 	  <connection>scm:git:git://github.com/microlam-io/${project.artifactId}.git</connection>
 	  <developerConnection>scm:git:ssh://git@github.com/microlam-io/${project.artifactId}.git</developerConnection>
 	  <url>https://github.com/microlam-io/${project.artifactId}/tree/master</url>
-    <tag>v0.6</tag>
-  </scm>
+    </scm>
 
 	<distributionManagement>
 	  <snapshotRepository>
@@ -58,8 +57,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <netty.version>4.1.56.Final</netty.version>
-    <slf4j.version>2.0.0-alpha5</slf4j.version>
+    <slf4j.version>2.0.3</slf4j.version>
     <junit.version>4.12</junit.version>
     <gpg.keyname>8011431D42D5A9ACBEF8B2A6D153D68FA8DF084C</gpg.keyname>
   </properties>
@@ -155,17 +153,17 @@
 </build>
 
   <dependencyManagement>
-    <dependencies>
- 
-	<dependency>
-      <groupId>io.microlam</groupId>
-      <artifactId>microlam-bom</artifactId>
-      <version>0.4.0</version>
-      <type>pom</type>
-      <scope>import</scope>
-    </dependency>
-
-  </dependencies>
+	    <dependencies>
+	 
+		<dependency>
+	      <groupId>io.microlam</groupId>
+	      <artifactId>microlam-bom</artifactId>
+	      <version>0.5.1</version>
+	      <type>pom</type>
+	      <scope>import</scope>
+	    </dependency>
+	
+	  </dependencies>
   </dependencyManagement>
 
   <dependencies>
@@ -194,6 +192,12 @@
      </dependency>
 
     <dependency>
+      	<groupId>software.amazon.awssdk</groupId>
+      	<artifactId>apigateway</artifactId>
+		<scope>provided</scope>
+     </dependency>
+
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -201,7 +205,6 @@
  	<dependency>
 	  <groupId>com.squareup.okhttp3</groupId>
 	  <artifactId>okhttp</artifactId>
-	  <version>4.10.0</version>
 	</dependency>
 
     <dependency>
