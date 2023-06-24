@@ -111,32 +111,8 @@ public class LambdaUtils {
 					}
 					while (! success);
 					if (aliasName != null) {
-						boolean aliasExists;
-						try {
-							GetAliasResponse getAliasResponse = lambdaClient.getAlias(GetAliasRequest.builder().functionName(functionName).name(aliasName).build());
-							aliasExists = true;
-							if (! getAliasResponse.sdkHttpResponse().isSuccessful()) {
-								LOGGER.warn("Cannot get alias for Lambda {} and Alias {}", functionName, aliasName);
-							}
-						}
-						catch(ResourceNotFoundException rnfex) {
-							aliasExists = false;
-						}
-						if (! aliasExists) {
-							CreateAliasResponse createAliasResponse = lambdaClient.createAlias(CreateAliasRequest.builder().functionName(functionName).functionVersion(publishVersionResponse.version()).name(aliasName).build());
-							LOGGER.info("Alias created!");
-							if (! createAliasResponse.sdkHttpResponse().isSuccessful()) {
-								LOGGER.warn("Cannot create alias for Lambda {}, Alias {} and version {}", functionName, aliasName, publishVersionResponse.version());
-							}
-
-						}
-						else {
-							UpdateAliasResponse updateAliasResponse =  lambdaClient.updateAlias(UpdateAliasRequest.builder().functionName(functionName).functionVersion(publishVersionResponse.version()).name(aliasName).build());
-							LOGGER.info("Alias updated!");
-							if (! updateAliasResponse.sdkHttpResponse().isSuccessful()) {
-								LOGGER.warn("Cannot update alias for Lambda {}, Alias {} and version {}", functionName, aliasName, publishVersionResponse.version());
-							}
-						}
+						String functionVersion = publishVersionResponse.version();
+						updateLambdaAlias(functionName, functionVersion, aliasName, lambdaClient);
 					}
 					else {
 						LOGGER.info("No alias requested!");
@@ -153,6 +129,45 @@ public class LambdaUtils {
 		}		
 	}
 
+	protected static void updateLambdaAlias(String functionName, String functionVersion, String aliasName,
+			LambdaClient lambdaClient) {
+		boolean aliasExists;
+		try {
+			GetAliasResponse getAliasResponse = lambdaClient.getAlias(GetAliasRequest.builder().functionName(functionName).name(aliasName).build());
+			aliasExists = true;
+			if (! getAliasResponse.sdkHttpResponse().isSuccessful()) {
+				LOGGER.warn("Cannot get alias for Lambda {} and Alias {}", functionName, aliasName);
+			}
+		}
+		catch(ResourceNotFoundException rnfex) {
+			aliasExists = false;
+		}
+		if (! aliasExists) {
+			CreateAliasResponse createAliasResponse = lambdaClient.createAlias(CreateAliasRequest.builder().functionName(functionName).functionVersion(functionVersion).name(aliasName).build());
+			LOGGER.info("Alias created!");
+			if (! createAliasResponse.sdkHttpResponse().isSuccessful()) {
+				LOGGER.warn("Cannot create alias for Lambda {}, Alias {} and version {}", functionName, aliasName, functionVersion);
+			}
+
+		}
+		else {
+			UpdateAliasResponse updateAliasResponse =  lambdaClient.updateAlias(UpdateAliasRequest.builder().functionName(functionName).functionVersion(functionVersion).name(aliasName).build());
+			LOGGER.info("Alias updated!");
+			if (! updateAliasResponse.sdkHttpResponse().isSuccessful()) {
+				LOGGER.warn("Cannot update alias for Lambda {}, Alias {} and version {}", functionName, aliasName, functionVersion);
+			}
+		}
+	}
+
+	public static void updateLambdaAlias(String[] allLambdas, String aliasName) {
+		LambdaClient lambdaClient = getLambdaClient();
+
+		for(String functionName : allLambdas) { 
+			LOGGER.info("Updating alias for lambda: {}...", functionName);
+			updateLambdaAlias(functionName, "$LATEST", aliasName, lambdaClient);
+		}
+	}
+	
 	public static String runPost(File file, String host, int port) throws IOException{
 		OkHttpClient client = new OkHttpClient();
 	    RequestBody body = RequestBody.create(file, JSON);

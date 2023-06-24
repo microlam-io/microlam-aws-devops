@@ -29,23 +29,41 @@ public class S3Utils {
 	private static Logger LOGGER = LoggerFactory.getLogger(S3Utils.class);
 	
 	protected static S3Client s3Client = null;
+	protected static S3Client s3ClientTA = null;
 	
-	public static S3Client getS3Client() {
-		if (s3Client == null) {
-			s3Client = createS3Client();
+	public static S3Client getS3Client(boolean transferAcceleration) {
+		if (transferAcceleration) {
+			if (s3ClientTA == null) {
+				s3ClientTA = createS3Client(transferAcceleration);
+			}
+			return s3ClientTA;
 		}
-		return s3Client;
+		else {
+			if (s3Client == null) {
+				s3Client = createS3Client(transferAcceleration);
+			}
+			return s3Client;
+		}
 	}
 
 	public static S3Client createS3Client() {
 		return AwsProfileRegionClientConfigurator.getInstance().configure(S3Client.builder()).build();
 	}
 
+	public static S3Client createS3Client(boolean transferAcceleration) {
+		return AwsProfileRegionClientConfigurator.getInstance().configure(S3Client.builder().accelerate(transferAcceleration))
+				.build();
+	}
+
 	public static String uploadFileToS3(File file, String bucket) {
+		return uploadFileToS3(file, bucket, false);
+	}
+	
+	public static String uploadFileToS3(File file, String bucket, boolean transferAcceleration) {
 		LOGGER.info("Deploying file {} to S3 bucket '{}'...",  file.getName(), bucket);
 		Path path = file.toPath();
 		
-		PutObjectResponse por = getS3Client().putObject((PutObjectRequest) PutObjectRequest.builder().bucket(bucket).key(file.getName()).build(), path);
+		PutObjectResponse por = getS3Client(transferAcceleration).putObject((PutObjectRequest) PutObjectRequest.builder().bucket(bucket).key(file.getName()).build(), path);
 		if (por.sdkHttpResponse().isSuccessful()) {
 			LOGGER.info("ok! File uploaded to {}", "s3://"+ bucket + "/" + file.getName());
 			return file.getName();
@@ -54,8 +72,12 @@ public class S3Utils {
 	}
 
 	public static String uploadFileToS3(File file, String bucket, int maxThreads) {
+		return uploadFileToS3(file, bucket, false, maxThreads);
+	}
+	
+	public static String uploadFileToS3(File file, String bucket, boolean transferAcceleration, int maxThreads) {
 		LOGGER.info("Deploying file {} to S3 bucket '{}'...",  file.getName(), bucket);
-		CreateMultipartUploadResponse response = getS3Client().createMultipartUpload(CreateMultipartUploadRequest.builder()
+		CreateMultipartUploadResponse response = getS3Client(transferAcceleration).createMultipartUpload(CreateMultipartUploadRequest.builder()
 				.bucket(bucket)
 				.key(file.getName())
 				.build()
@@ -67,7 +89,7 @@ public class S3Utils {
 		long size = file.length();
 		if (size < fiveMega) {
 			LOGGER.info("File too small for Multi-Part upload");
-			return uploadFileToS3(file, bucket);
+			return uploadFileToS3(file, bucket, transferAcceleration);
 		}
 		int count = (int) (size / fiveMega)+1;
 		int threadCount = Math.min(maxThreads, count);
@@ -88,7 +110,7 @@ public class S3Utils {
 						long contentLength = Math.min(size-offset, fiveMega);
 						fis.getChannel().position(offset);
 						LOGGER.info("Starting upload part {} from offset = {} with contentLength = {}", partNumber, offset, contentLength);
-						UploadPartResponse uprs = getS3Client().uploadPart(UploadPartRequest.builder()
+						UploadPartResponse uprs = getS3Client(transferAcceleration).uploadPart(UploadPartRequest.builder()
 								.bucket(bucket)
 								.key(file.getName())
 								.uploadId(uploadId)
@@ -120,7 +142,7 @@ public class S3Utils {
 						.uploadId(uploadId)
 						.multipartUpload(CompletedMultipartUpload.builder().parts(resultParts).build());
 						
-				s3Client.completeMultipartUpload(builder.build());
+				getS3Client(transferAcceleration).completeMultipartUpload(builder.build());
 				LOGGER.info("ok! File uploaded to {}", "s3://"+ bucket + "/" + file.getName());
 				return file.getName();
 			}
